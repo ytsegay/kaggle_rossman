@@ -3,6 +3,8 @@ import csv
 from sklearn.preprocessing import LabelEncoder
 from sklearn.cross_validation import train_test_split
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.svm import SVR
 import math
 
 
@@ -19,7 +21,7 @@ def RMSPE(truth, predict):
             diffPercentage = (truth[i] - predict[i])/truth[i]
             total += (diffPercentage*diffPercentage)
             counter += 1
-    print total, counter
+    #print total, counter
     return math.sqrt(total/counter)
 
 
@@ -47,10 +49,20 @@ def runEVal():
 
     xTrain, xTest, yTrain, yTest = train_test_split(x, y, test_size=0.33, random_state=42)
 
-    clf = RandomForestRegressor(n_estimators=150, min_samples_split=1)
-    clf.fit(xTrain, yTrain)
-    pred = clf.predict(xTest)
+    from sklearn import linear_model
+    clf = linear_model.LinearRegression()
 
-    RMSPE(yTest, pred)
+    clfs = {"RandomForestRegressor": RandomForestRegressor(n_estimators=150),
+            "GradientBoostingRegressor": GradientBoostingRegressor(n_estimators=150),
+            "SVR_RBF": SVR(kernel='rbf', C=1e3, gamma=0.1),
+            "SVR_LINEAR": SVR(kernel='linear', C=1e3),
+            "SVR_POLY": SVR(kernel='poly', C=1e3, degree=2)}
+
+    for k,clf in clfs.iteritems():
+        clf.fit(xTrain, yTrain)
+        pred = clf.predict(xTest)
+
+        print k,RMSPE(yTest, pred)
 
 
+runEVal()

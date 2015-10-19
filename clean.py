@@ -32,10 +32,13 @@ def main():
                 #joined += oneHotEncode(joined[9], ['a', 'b', 'c', 'd'])
                 #joined += oneHotEncode(joined[7], ['a', 'b', 'c', '0'])
 
-                del joined[17]
-                del joined[2]
+                del joined[17]  # promoIntervals
+                del joined[4]   # customers count
+                del joined[2]   # date
 
                 print ",".join(joined)
+            #else:
+            #    print ",".join(joined)
             counter += 1
 
 
@@ -83,7 +86,6 @@ def oneHotEncode(value, allPossibleValues):
         mp[val] = index
         index += 1
 
-    #
     ret = ['0'] * index
     ret[mp[value]] = '1'
     return ret
@@ -95,7 +97,6 @@ def transformDate(parts):
     return parts + dateParts
 
 def monthToNum(date):
-
     return{
             'Jan' : 1,
             'Feb' : 2,

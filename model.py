@@ -27,7 +27,7 @@ def RMSPE(truth, predict):
 
 
 def runEVal():
-    ntrees = 500
+    nTrees = 1000
 
     temp = []
     with open("c.csv", "rb") as f:
@@ -37,12 +37,12 @@ def runEVal():
 
 
     data = numpy.array(temp)
-    data[:,6] = LabelEncoder().fit_transform(data[:,6]) #state holiday
-    data[:,8] = LabelEncoder().fit_transform(data[:,8]) #storetype
-    data[:,9] = LabelEncoder().fit_transform(data[:,9]) #assortment
+    data[:, 5] = LabelEncoder().fit_transform(data[:,6]) #state holiday
+    data[:, 7] = LabelEncoder().fit_transform(data[:,8]) #storetype
+    data[:, 8] = LabelEncoder().fit_transform(data[:,9]) #assortment
 
     # label
-    y = data[:,2]
+    y = data[:, 2]
     # training
     x = numpy.delete(data, 2, 1)
 
@@ -65,14 +65,14 @@ def runEVal():
     #
     #    print k,RMSPE(yTest, pred)
 
-    cv = ShuffleSplit(len(y), n_iter=5, train_size=0.33, random_state=0)
+    cv = ShuffleSplit(len(y), n_iter=2, train_size=0.33, random_state=0)
     for trainIndex, testIndex in cv:
         xTrain = x[trainIndex,:]
         yTrain = y[trainIndex]
         xTest = x[testIndex,:]
         yTest = y[testIndex]
 
-        clf = RandomForestRegressor(n_estimators=ntrees)
+        clf = RandomForestRegressor(n_estimators=nTrees)
         clf.fit(xTrain, yTrain)
         pred = clf.predict(xTest)
         print RMSPE(yTest, pred)

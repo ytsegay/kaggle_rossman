@@ -5,6 +5,7 @@ from sklearn.cross_validation import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.linear_model import LinearRegression
+from sklearn.cross_validation import ShuffleSplit
 import math
 
 
@@ -26,7 +27,7 @@ def RMSPE(truth, predict):
 
 
 def runEVal():
-    ntrees = 150
+    ntrees = 500
 
     temp = []
     with open("c.csv", "rb") as f:
@@ -49,21 +50,32 @@ def runEVal():
     y = y.astype(float)
     x = x.astype(int)
 
-    xTrain, xTest, yTrain, yTest = train_test_split(x, y, test_size=0.33, random_state=42)
+    #xTrain, xTest, yTrain, yTest = train_test_split(x, y, test_size=0.33, random_state=42)
+    #from sklearn import linear_model
+    #clf = linear_model.LinearRegression()
+    #
+    #clfs = {"RandomForestRegressor": RandomForestRegressor(n_estimators=ntrees),
+    #        "GradientBoostingRegressor": GradientBoostingRegressor(n_estimators=ntrees),
+    #        "LinearRegression": LinearRegression()
+    #        }
+    #
+    #for k,clf in clfs.iteritems():
+    #    clf.fit(xTrain, yTrain)
+    #    pred = clf.predict(xTest)
+    #
+    #    print k,RMSPE(yTest, pred)
 
-    from sklearn import linear_model
-    clf = linear_model.LinearRegression()
+    cv = ShuffleSplit(len(y), n_iter=5, train_size=0.33, random_state=0)
+    for trainIndex, testIndex in cv:
+        xTrain = x[trainIndex,:]
+        yTrain = y[trainIndex]
+        xTest = x[testIndex,:]
+        yTest = y[testIndex]
 
-    clfs = {"RandomForestRegressor": RandomForestRegressor(n_estimators=ntrees),
-            "GradientBoostingRegressor": GradientBoostingRegressor(n_estimators=ntrees),
-            "LinearRegression": LinearRegression()
-            }
-
-    for k,clf in clfs.iteritems():
+        clf = RandomForestRegressor(n_estimators=ntrees)
         clf.fit(xTrain, yTrain)
         pred = clf.predict(xTest)
-
-        print k,RMSPE(yTest, pred)
+        print RMSPE(yTest, pred)
 
 
 runEVal()

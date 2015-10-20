@@ -27,7 +27,7 @@ def RMSPE(truth, predict):
 
 
 def runEVal():
-    nTrees = 5000
+    nTrees = 1000
 
     temp = []
     with open("c.csv", "rb") as f:
@@ -47,10 +47,11 @@ def runEVal():
     x = numpy.delete(data, 2, 1)
 
     #thus far the data is in string format
-    y = numpy.log(y.astype(float)+1)
+    #y = numpy.log(y.astype(float)+1)
+    y = y.astype(float)
     x = x.astype(int)
 
-    cv = ShuffleSplit(len(y), n_iter=2, train_size=0.33, random_state=0)
+    cv = ShuffleSplit(len(y), n_iter=2, test_size=0.03, random_state=0)
     for trainIndex, testIndex in cv:
         xTrain = x[trainIndex,:]
         yTrain = y[trainIndex]
@@ -60,11 +61,11 @@ def runEVal():
         print "Train: ",len(yTrain)
         print "Test: ",len(yTest)
 
-        clf = GradientBoostingRegressor(n_estimators=nTrees, max_depth=10)
+        clf = RandomForestRegressor(n_estimators=nTrees, max_depth=10, n_jobs=5)
         clf.fit(xTrain, yTrain)
         pred = clf.predict(xTest)
-        predBase10 = numpy.expm1(pred)
-        print RMSPE(yTest, predBase10)
+        #predBase10 = numpy.expm1(pred)
+        print RMSPE(yTest, pred)
 
 
 

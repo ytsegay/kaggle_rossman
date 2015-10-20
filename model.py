@@ -27,7 +27,7 @@ def RMSPE(truth, predict):
 
 
 def runEVal():
-    nTrees = 1000
+    nTrees = 5000
 
     temp = []
     with open("c.csv", "rb") as f:
@@ -47,23 +47,8 @@ def runEVal():
     x = numpy.delete(data, 2, 1)
 
     #thus far the data is in string format
-    y = y.astype(float)
+    y = numpy.log(y.astype(float)+1)
     x = x.astype(int)
-
-    #xTrain, xTest, yTrain, yTest = train_test_split(x, y, test_size=0.33, random_state=42)
-    #from sklearn import linear_model
-    #clf = linear_model.LinearRegression()
-    #
-    #clfs = {"RandomForestRegressor": RandomForestRegressor(n_estimators=ntrees),
-    #        "GradientBoostingRegressor": GradientBoostingRegressor(n_estimators=ntrees),
-    #        "LinearRegression": LinearRegression()
-    #        }
-    #
-    #for k,clf in clfs.iteritems():
-    #    clf.fit(xTrain, yTrain)
-    #    pred = clf.predict(xTest)
-    #
-    #    print k,RMSPE(yTest, pred)
 
     cv = ShuffleSplit(len(y), n_iter=2, train_size=0.33, random_state=0)
     for trainIndex, testIndex in cv:
@@ -72,10 +57,15 @@ def runEVal():
         xTest = x[testIndex,:]
         yTest = y[testIndex]
 
-        clf = RandomForestRegressor(n_estimators=nTrees)
+        print "Train: ",len(yTrain)
+        print "Test: ",len(yTest)
+
+        clf = GradientBoostingRegressor(n_estimators=nTrees, max_depth=10)
         clf.fit(xTrain, yTrain)
         pred = clf.predict(xTest)
-        print RMSPE(yTest, pred)
+        predBase10 = numpy.expm1(pred)
+        print RMSPE(yTest, predBase10)
+
 
 
 runEVal()

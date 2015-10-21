@@ -51,21 +51,22 @@ def runEVal():
     y = y.astype(float)
     x = x.astype(int)
 
-    cv = ShuffleSplit(len(y), n_iter=3, test_size=0.1)
-    for trainIndex, testIndex in cv:
-        xTrain = x[trainIndex,:]
-        yTrain = y[trainIndex]
-        xTest = x[testIndex,:]
-        yTest = y[testIndex]
+#    cv = ShuffleSplit(len(y), n_iter=3, test_size=0.1)
+#    for trainIndex, testIndex in cv:
+#        xTrain = x[trainIndex,:]
+#        yTrain = y[trainIndex]
+#        xTest = x[testIndex,:]
+#        yTest = y[testIndex]
+    
+    xTrain, xTest, yTrain, yTest = train_test_split(x, y, test_size=0.1, random_state=42)
+    print "Train: ",len(yTrain)
+    print "Test: ",len(yTest)
 
-        print "Train: ",len(yTrain)
-        print "Test: ",len(yTest)
-
-        clf = RandomForestRegressor(n_estimators=nTrees, n_jobs=5)
-        clf.fit(xTrain, yTrain)
-        pred = clf.predict(xTest)
-        predBase10 = numpy.expm1(pred)
-        print RMSPE(yTest, pred)
+    clf = RandomForestRegressor(n_estimators=nTrees, n_jobs=5)
+    clf.fit(xTrain, yTrain)
+    pred = clf.predict(xTest)
+    predBase10 = numpy.expm1(pred)
+    print RMSPE(yTest, pred)
 
 
 

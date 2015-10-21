@@ -27,16 +27,24 @@ def RMSPE(truth, predict):
 
 
 def runEVal():
-    nTrees = 500
+    nTrees = 300
 
     temp = []
+    counter = 0
     with open("c.csv", "rb") as f:
-            reader = csv.reader(f)
-            for row in reader:
+        reader = csv.reader(f)
+        for row in reader:
+            if row[3] != '0':
                 temp.append(row)
+                counter += 1
+            else:
+                if row[3] == '0' and row[2] != '0':
+                    print row[3], row[2]
 
+    print counter
 
     data = numpy.array(temp)
+    del temp
     data[:, 5] = LabelEncoder().fit_transform(data[:,6]) #state holiday
     data[:, 7] = LabelEncoder().fit_transform(data[:,8]) #storetype
     data[:, 8] = LabelEncoder().fit_transform(data[:,9]) #assortment
@@ -62,10 +70,10 @@ def runEVal():
     print "Train: ",len(yTrain)
     print "Test: ",len(yTest)
 
-    clf = RandomForestRegressor(n_estimators=nTrees, n_jobs=5)
+    clf = RandomForestRegressor(n_estimators=nTrees, max_depth=50, n_jobs=2, verbose=1)
     clf.fit(xTrain, yTrain)
     pred = clf.predict(xTest)
-    predBase10 = numpy.expm1(pred)
+    #predBase10 = numpy.expm1(pred)
     print RMSPE(yTest, pred)
 
 

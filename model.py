@@ -6,6 +6,8 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.cross_validation import ShuffleSplit
+from sklearn.linear_model import Ridge
+from sklearn.svm import NuSVR
 import math
 
 
@@ -27,13 +29,15 @@ def RMSPE(truth, predict):
 
 
 def runEVal():
-    nTrees = 300
+    nTrees = 900
 
     temp = []
     counter = 0
     with open("c.csv", "rb") as f:
         reader = csv.reader(f)
         for row in reader:
+            # remove days on which stores were closed.
+            # it however might be usef
             if row[3] != '0':
                 temp.append(row)
                 counter += 1
@@ -70,12 +74,15 @@ def runEVal():
     print "Train: ",len(yTrain)
     print "Test: ",len(yTest)
 
-    clf = RandomForestRegressor(n_estimators=nTrees, max_depth=50, n_jobs=2, verbose=1)
-    clf.fit(xTrain, yTrain)
-    pred = clf.predict(xTest)
-    #predBase10 = numpy.expm1(pred)
-    print RMSPE(yTest, pred)
+    clfs = {"RF" : RandomForestRegressor(n_estimators=nTrees, n_jobs=2, verbose=1),
+            "GBT" : GradientBoostingRegressor(n_estimators=nTrees, verbose=1)}
 
+    for key, clf in clfs.iteritems():
+        print "Processing ",key
+        clf.fit(xTrain, yTrain)
+        pred = clf.predict(xTest)
+        #predBase10 = numpy.expm1(pred)
+        print RMSPE(yTest, pred)
 
 
 runEVal()

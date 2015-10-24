@@ -13,6 +13,7 @@
 
 ##### Why is predicting these prices so difficult?
 Granted that the number of trees used is very small why is it difficult to get a decent accuracy with such a large volume of data? 
+
 plots/ScoreDistrib.png shows that the skewed right distribution of the scores. It also shows that there are a bunch of stores whose sales are zero.
 To address the closed stores issues we removed closed stores from training. If a store is closed it will not make any sales. TO address the issue of skewed scores distribution, we will take the log of the scores as their surrogate.
 

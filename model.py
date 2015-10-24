@@ -29,7 +29,7 @@ def RMSPE(truth, predict):
 
 
 def runEVal():
-    nTrees = 900
+    nTrees = 3000
 
     temp = []
     counter = 0
@@ -59,30 +59,32 @@ def runEVal():
     x = numpy.delete(data, 2, 1)
 
     #thus far the data is in string format
-    #y = numpy.log(y.astype(float)+1)
-    y = y.astype(float)
+    y = numpy.log1p(y.astype(float))
+    #y = y.astype(float)
     x = x.astype(int)
 
-#    cv = ShuffleSplit(len(y), n_iter=3, test_size=0.1)
-#    for trainIndex, testIndex in cv:
-#        xTrain = x[trainIndex,:]
-#        yTrain = y[trainIndex]
-#        xTest = x[testIndex,:]
-#        yTest = y[testIndex]
+    del data
+
+    clfs = {"RF" : RandomForestRegressor(n_estimators=nTrees, n_jobs=1, verbose=1)
+            #"GBT" : GradientBoostingRegressor(n_estimators=nTrees, verbose=1, max_depth=40)
+	        }
+
+    cv = ShuffleSplit(len(y), n_iter=2, test_size=0.1)
+    for trainIndex, testIndex in cv:
+        xTrain = x[trainIndex,:]
+        yTrain = y[trainIndex]
+        xTest = x[testIndex,:]
+        yTest = y[testIndex]
     
-    xTrain, xTest, yTrain, yTest = train_test_split(x, y, test_size=0.1, random_state=42)
-    print "Train: ",len(yTrain)
-    print "Test: ",len(yTest)
+        print "Train: ",len(yTrain)
+        print "Test: ",len(yTest)
 
-    clfs = {"RF" : RandomForestRegressor(n_estimators=nTrees, n_jobs=2, verbose=1),
-            "GBT" : GradientBoostingRegressor(n_estimators=nTrees, verbose=1)}
-
-    for key, clf in clfs.iteritems():
-        print "Processing ",key
-        clf.fit(xTrain, yTrain)
-        pred = clf.predict(xTest)
-        #predBase10 = numpy.expm1(pred)
-        print RMSPE(yTest, pred)
+        for key, clf in clfs.iteritems():
+            print "Processing ",key
+            clf.fit(xTrain, yTrain)
+            pred = clf.predict(xTest)
+            #predBase10 = numpy.expm1(pred)
+            print RMSPE(yTest, pred)
 
 
 runEVal()

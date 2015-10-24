@@ -7,9 +7,9 @@
 
 
 ##### First stab
-Random forest: unless tree depth is controlled to under 20 and estimators/trees are trimmed to under 300, this will cause quick oom in your machine. so tread with care. RMSPE=0.368
-Linear regression/svm linear, svm nu produces RMSPE of about 0.456
-GBM: ??
+- Random forest: unless tree depth is controlled to under 20 and estimators/trees are trimmed to under 300, this will cause quick oom in your machine. so tread with care. RMSPE=0.368
+- Linear regression/svm linear, svm nu produces RMSPE of about 0.456
+- GBM: ??
 
 ##### Why is predicting these prices so difficult?
 Granted that the number of trees used is very small why is it difficult to get a decent accuracy with such a large volume of data? 

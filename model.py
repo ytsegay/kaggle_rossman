@@ -3,6 +3,7 @@ import csv
 from sklearn.preprocessing import LabelEncoder
 from sklearn.cross_validation import train_test_split
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import ExtraTreesRegressor
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.cross_validation import ShuffleSplit
@@ -29,7 +30,7 @@ def RMSPE(truth, predict):
 
 
 def runEVal():
-    nTrees = 3000
+    nTrees = 1900
 
     temp = []
     counter = 0
@@ -65,8 +66,8 @@ def runEVal():
 
     del data
 
-    clfs = {"RF" : RandomForestRegressor(n_estimators=nTrees, n_jobs=1, verbose=1)
-            #"GBT" : GradientBoostingRegressor(n_estimators=nTrees, verbose=1, max_depth=40)
+    clfs = {"RF" : ExtraTreesRegressor(n_estimators=nTrees, n_jobs=5, verbose=1)
+            #"GBT" : GradientBoostingRegressor(n_estimators=nTrees, verbose=1, max_depth=7)
 	        }
 
     cv = ShuffleSplit(len(y), n_iter=2, test_size=0.1)

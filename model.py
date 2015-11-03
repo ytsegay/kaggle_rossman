@@ -38,8 +38,8 @@ def runEVal():
     dfNoZeroSales = df.drop(df[df.Sales <= 0].index)
 
     # all data after may 2015 (including may) is considered for testing
-    dfTrain = dfNoZeroSales[(dfNoZeroSales.OpenYear < 2015)]
-    dfTest = dfNoZeroSales[((dfNoZeroSales.OpenYear >= 2015) & (dfNoZeroSales.OpenMonth >= 5))]
+    dfTrain = dfNoZeroSales[(dfNoZeroSales.trainYear < 2015)]
+    dfTest = dfNoZeroSales[((dfNoZeroSales.trainYear >= 2015) & (dfNoZeroSales.trainMonth >= 5))]
 
     yTrain = dfTrain.Sales
     yTest = dfTest.Sales
@@ -53,8 +53,9 @@ def runEVal():
 
     # TODO: need to shuffle data
 
-    clfs = {#"RF" : ExtraTreesRegressor(n_estimators=nTrees, n_jobs=5, verbose=1)#
-        "GBT" : GradientBoostingRegressor(n_estimators=nTrees, verbose=1, max_depth=10)
+    clfs = {
+        "RF" : RandomForestRegressor(n_estimators=nTrees, n_jobs=5, verbose=1)#
+        #"GBT" : GradientBoostingRegressor(n_estimators=nTrees, verbose=1, max_depth=10)
         #"LR": LinearRegression(),
     }
 

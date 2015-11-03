@@ -1,19 +1,15 @@
-import math
-import random
-import numpy
-import csv
-from sklearn.preprocessing import LabelEncoder
-from sklearn.cross_validation import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import ExtraTreesRegressor
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.linear_model import LinearRegression
-from sklearn.cross_validation import ShuffleSplit
 from sklearn.linear_model import Ridge
 from sklearn.svm import NuSVR
-
+import pandas as pd
+import numpy as np
+import math
 
 __author__ = 'ytsegay'
+
 
 # compute root mean square percentage error
 # a measure of deviation from the truth in percentage
@@ -23,95 +19,55 @@ def RMSPE(truth, predict):
     counter = 0
     for i in xrange(len(truth)):
         if truth[i] > 0:
-            diffPercentage = (truth[i] - predict[i])/truth[i]
-            total += (diffPercentage*diffPercentage)
+            diffPercentage = (truth[i] - predict[i]) / truth[i]
+            total += (diffPercentage * diffPercentage)
             counter += 1
-    #print total, counter
-    return math.sqrt(total/counter)
+    # print total, counter
+    return math.sqrt(total / counter)
 
-def shuffleSplitTimeOrdered(x):
-    i = 0
-    trainIndex = []
-    testIndex = []
-    for row in x:
-        if row[23] == 2015 and row[24] >= 5:
-            testIndex.append(i)
-        else:
-            trainIndex.append(i)
-        i += 1
-    random.shuffle(trainIndex)
-    random.shuffle(testIndex)
-
-    return [trainIndex, testIndex]
 
 def runEVal():
     nTrees = 1900
 
-    temp = []
-    counter = 0
-    with open("c2.csv", "rb") as f:
-        reader = csv.reader(f)
-        for row in reader:
-            # remove days on which stores were closed.
-            # it however might be usef
-            if row[3] != '0':
-                temp.append(row)
-                counter += 1
-            else:
-                if row[3] == '0' and row[2] != '0':
-                    print row[3], row[2]
+    df = pd.read_csv("c2.csv", parse_dates=True)
 
-    print counter
+    # how many days had a zero sale
+    zeroSalesDays = df[df.Sales <= 0]
 
-    data = numpy.array(temp)
-    del temp
-    #data[:, 5] = LabelEncoder().fit_transform(data[:,6]) #state holiday
-    #data[:, 7] = LabelEncoder().fit_transform(data[:,8]) #storetype
-    #data[:, 8] = LabelEncoder().fit_transform(data[:,9]) #assortment
+    # remove zero sales
+    dfNoZeroSales = df.drop(df[df.Sales <= 0].index)
 
+    # all data after may 2015 (including may) is considered for testing
+    dfTrain = dfNoZeroSales[(dfNoZeroSales.OpenYear < 2015)]
+    dfTest = dfNoZeroSales[((dfNoZeroSales.OpenYear >= 2015) & (dfNoZeroSales.OpenMonth >= 5))]
 
-    # labels minus the title
-    y = data[1:, 2]
-    # training
-    x = numpy.delete(data, 2, 1)
-    # headers
-    headers = x[0,:]
+    yTrain = dfTrain.Sales
+    yTest = dfTest.Sales
 
-    # remove headers
-    x = numpy.delete(x, 0, 0)
+    xTrain = dfTrain.drop('Sales', axis=1)
+    xTest = dfTest.drop('Sales', axis=1)
 
-    print headers
-    print x[1:2,:]
+    # given the skewed nature of the labels, lets take a log
+    yTestlog = yTest.apply(lambda x: np.log1p(x))
+    yTrainlog = yTrain.apply(lambda x: np.log1p(x))
 
-    #thus far the data is in string format
-    y = numpy.log1p(y.astype(float))
-    #y = y.astype(float)
-    x = x.astype(int)
+    # TODO: need to shuffle data
 
-    del data
+    clfs = {#"RF" : ExtraTreesRegressor(n_estimators=nTrees, n_jobs=5, verbose=1)#
+        "GBT" : GradientBoostingRegressor(n_estimators=nTrees, verbose=1, max_depth=10)
+        #"LR": LinearRegression(),
+    }
 
-    clfs = {#"RF" : ExtraTreesRegressor(n_estimators=nTrees, n_jobs=5, verbose=1)
-            "GBT" : GradientBoostingRegressor(n_estimators=nTrees, verbose=1, max_depth=10)
-	        }
-
-    #cv = ShuffleSplit(len(y), n_iter=1, test_size=0.1)
-    cv = shuffleSplitTimeOrdered(x)
-    trainIndex = cv[0]
-    testIndex = cv[1]
-
-    xTrain = x[trainIndex,:]
-    yTrain = y[trainIndex]
-    xTest = x[testIndex,:]
-    yTest = y[testIndex]
-
-    print "Train: ",len(yTrain)
-    print "Test: ",len(yTest)
+    # TODO: need to shuffle
+    print "Train: ", len(yTrain)
+    print "Test: ", len(yTest)
+    print xTrain.columns
 
     for key, clf in clfs.iteritems():
-        print "Processing ",key
+        print "Processing ", key
         clf.fit(xTrain, yTrain)
         pred = clf.predict(xTest)
-        #predBase10 = numpy.expm1(pred)
+        # predBase10 = numpy.expm1(pred)
         print "RMSPE: ", RMSPE(yTest, pred)
 
         feature_importance = clf.feature_importances_
@@ -122,7 +78,6 @@ def runEVal():
         print "feature importance: \n\n"
         for idx in sorted_idx:
             print headers[idx], feature_importance[idx]
-
 
 
 import time

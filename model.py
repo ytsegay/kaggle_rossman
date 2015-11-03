@@ -65,19 +65,18 @@ def runEVal():
 
     for key, clf in clfs.iteritems():
         print "Processing ", key
-        clf.fit(xTrain, yTrain)
+        clf.fit(xTrain, yTrainlog)
         pred = clf.predict(xTest)
-        # predBase10 = numpy.expm1(pred)
-        print "RMSPE: ", RMSPE(yTest, pred)
+        print "RMSPE: ", RMSPE(yTestlog, pred)
 
         feature_importance = clf.feature_importances_
         # make importances relative to max importance
         feature_importance = 100.0 * (feature_importance / feature_importance.max())
-        sorted_idx = numpy.argsort(feature_importance)
+        sorted_idx = np.argsort(feature_importance)
 
         print "feature importance: \n\n"
         for idx in sorted_idx:
-            print headers[idx], feature_importance[idx]
+            print xTrain.columns[idx], feature_importance[idx]
 
 
 import time

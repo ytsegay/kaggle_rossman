@@ -36,7 +36,7 @@ def main():
                 del joined[10]  # assortment
                 del joined[9]   # StoreType
                 del joined[7]   # StateHoliday
-                del joined[4]   # customers count
+                #del joined[4]   # customers count
                 del joined[2]   # date
 
                 print ",".join(joined)
@@ -45,7 +45,7 @@ def main():
                 del joined[10]  # assortment
                 del joined[9]   # StoreType
                 del joined[7]   # StateHoliday
-                del joined[4]   # customers count
+                #del joined[4]   # customers count
                 del joined[2]   # date
 
                 print ",".join(joined) + ","\
